@@ -153,6 +153,36 @@ create policy "site_settings_public_read_keys"
 -- page_versions dan messages: tidak ada policy → tidak ada akses dari client.
 
 -- ---------------------------------------------------------------------------
+-- Hak akses eksplisit (defense in depth).
+-- RLS saja tidak cukup jika default privileges memberi akses tabel penuh:
+--   * anon/authenticated hanya boleh SELECT kolom publik.
+--   * Semua INSERT/UPDATE/DELETE ditolak; penulisan lewat service role.
+-- `pages.data` (draft editor) tidak pernah boleh dibaca publik, hanya
+-- `published_data` pada baris berstatus published.
+-- ---------------------------------------------------------------------------
+grant usage on schema public to anon, authenticated;
+
+revoke insert, update, delete on public.pages from anon, authenticated;
+revoke select on public.pages from anon, authenticated;
+grant select (id, slug, title, seo_description, og_image, published_data, status, updated_at)
+  on public.pages to anon, authenticated;
+
+revoke insert, update, delete on public.items from anon, authenticated;
+grant select on public.items to anon, authenticated;
+
+revoke insert, update, delete on public.site_settings from anon, authenticated;
+revoke select on public.site_settings from anon, authenticated;
+grant select (key, value) on public.site_settings to anon, authenticated;
+
+revoke all on public.page_versions from anon, authenticated;
+revoke all on public.messages from anon, authenticated;
+
+-- Cabut hak struktural yang tidak dibutuhkan peran publik pada semua tabel
+-- di schema public (termasuk tabel baru yang dibuat setelah migrasi ini).
+revoke truncate, trigger, references on all tables in schema public from anon, authenticated;
+
+
+-- ---------------------------------------------------------------------------
 -- Seed pengaturan
 -- ---------------------------------------------------------------------------
 insert into public.site_settings (key, value)
