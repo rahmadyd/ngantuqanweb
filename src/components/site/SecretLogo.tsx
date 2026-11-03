@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import styles from "./Header.module.css";
@@ -26,11 +27,11 @@ export function SecretLogo({ className }: SecretLogoProps) {
   }
 
   return (
-    <a href="/" className={className ?? styles.logo} onClick={onClick}>
+    <Link href="/" className={className ?? styles.logo} onClick={onClick}>
       <span className={styles.logoMark} aria-hidden>
         N
       </span>
       Ngantuqan
-    </a>
+    </Link>
   );
 }
