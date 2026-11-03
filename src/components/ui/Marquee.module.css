@@ -1,0 +1,48 @@
+.marquee {
+  overflow: hidden;
+  border-block: var(--border);
+  padding-block: var(--space-sm);
+}
+
+.track {
+  display: flex;
+  width: max-content;
+  animation: marquee-scroll var(--marquee-duration, 24s) linear infinite;
+  animation-direction: var(--marquee-direction, normal);
+}
+
+.group {
+  display: flex;
+  flex: none;
+  align-items: center;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 3vw, 2rem);
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.separator {
+  display: inline-block;
+  padding-inline: var(--space-md);
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

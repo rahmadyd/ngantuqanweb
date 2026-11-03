@@ -1,0 +1,26 @@
+.bar {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 50;
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border: var(--border);
+  border-radius: var(--radius-pill);
+  background-color: var(--limonade);
+  color: var(--ink);
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-hard);
+}
+
+.btn:hover {
+  background-color: var(--paper);
+}

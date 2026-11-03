@@ -1,0 +1,15 @@
+.section {
+  padding-block: var(--space-xl);
+}
+
+.sm {
+  padding-block: var(--space-lg);
+}
+
+.md {
+  padding-block: var(--space-xl);
+}
+
+.lg {
+  padding-block: var(--space-2xl);
+}

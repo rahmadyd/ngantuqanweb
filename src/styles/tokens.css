@@ -1,0 +1,52 @@
+/* Design tokens Ngantuqan — sumber kebenaran warna, bentuk, dan ukuran.
+   Komponen tidak boleh memakai nilai warna mentah; selalu rujuk variabel di sini. */
+
+:root {
+  /* Palet utama */
+  --brume: #c2f2e4; /* background lembut, section */
+  --menthe: #35c8b4; /* primary: tombol, kartu */
+  --limonade: #edf7be; /* surface terang, highlight */
+  --verveine: #a4cf4a; /* aksen, badge, hover */
+
+  /* Kontras — wajib dipakai untuk teks & outline */
+  --ink: #0c3b35; /* hijau gelap, bukan hitam murni */
+  --paper: #ffffff;
+  --pop: #ff6b6b; /* satu warna pop: CTA kecil, sticker, badge NEW */
+
+  /* Bentuk */
+  --radius-sm: 12px;
+  --radius-md: 20px;
+  --radius-lg: 32px;
+  --radius-pill: 999px;
+  --border-w: 2.5px;
+  --border: var(--border-w) solid var(--ink);
+  --shadow-hard: 4px 4px 0 var(--ink);
+  --shadow-hard-sm: 2px 2px 0 var(--ink);
+  --shadow-hard-lg: 7px 7px 0 var(--ink);
+
+  /* Layout */
+  --max-width: 1280px;
+  --header-h: 72px;
+
+  /* Spasi (preset, tanpa nilai px bebas di block) */
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+  --space-xl: 56px;
+  --space-2xl: 88px;
+
+  /* Tipografi — variabel diisi oleh next/font pada elemen <html> */
+  --font-display: var(--font-bagel, "Bagel Fat One"), system-ui, sans-serif;
+  --font-body: var(--font-dm-sans, "DM Sans"), system-ui, -apple-system, sans-serif;
+
+  /* Fokus keyboard */
+  --focus-color: var(--pop);
+  --focus-width: 3px;
+  --focus-offset: 3px;
+
+  /* Motion */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+}
