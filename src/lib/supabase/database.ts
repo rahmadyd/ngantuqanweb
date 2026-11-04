@@ -2,6 +2,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type PageStatus = "draft" | "published";
 export type ItemKind = "project" | "shop";
+export type ItemRow = Database["public"]["Tables"]["items"]["Row"];
 
 export type Database = {
   public: {
@@ -64,6 +65,7 @@ export type Database = {
           year: number | null;
           price_idr: number | null;
           order_url: string | null;
+          order_label: string | null;
           live_url: string | null;
           repo_url: string | null;
           is_featured: boolean;
@@ -89,6 +91,7 @@ export type Database = {
           year?: number | null;
           price_idr?: number | null;
           order_url?: string | null;
+          order_label?: string | null;
           live_url?: string | null;
           repo_url?: string | null;
           is_featured?: boolean;

@@ -10,6 +10,7 @@ export type SiteSettings = {
   site_title: string;
   site_description: string;
   shop_closed_message: string;
+  order_button_label: string;
 };
 
 export const DEFAULT_SETTINGS: SiteSettings = {
@@ -19,6 +20,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   site_description:
     "Portofolio visual dan toko karya Ngantuqan. Project, ilustrasi, dan produk digital.",
   shop_closed_message: "Toko sedang tutup. Cek lagi nanti ya!",
+  order_button_label: "Beli sekarang",
 };
 
 function asString(value: Json | undefined, fallback: string): string {
@@ -50,6 +52,7 @@ async function loadSettings(): Promise<SiteSettings> {
         map.get("shop_closed_message"),
         DEFAULT_SETTINGS.shop_closed_message,
       ),
+      order_button_label: asString(map.get("order_button_label"), DEFAULT_SETTINGS.order_button_label),
     };
   } catch {
     return DEFAULT_SETTINGS;

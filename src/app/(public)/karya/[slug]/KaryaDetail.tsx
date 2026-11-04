@@ -17,6 +17,8 @@ export type ItemData = {
   live_url: string | null;
   repo_url: string | null;
   is_sold_out: boolean;
+  wa_number: string;
+  orderAction: { href: string; label: string } | null;
 };
 
 export function KaryaDetail({ item }: { item: ItemData }) {
@@ -170,7 +172,7 @@ export function KaryaDetail({ item }: { item: ItemData }) {
         )}
       </article>
 
-      {item.kind === "shop" && (
+      {item.kind === "shop" && item.orderAction && (
         <div
           style={{
             position: "sticky",
@@ -199,12 +201,10 @@ export function KaryaDetail({ item }: { item: ItemData }) {
               </div>
             )}
           </div>
-          <button
-            disabled={item.is_sold_out}
-            onClick={() => {
-              if (item.order_url) window.open(item.order_url, "_blank", "noopener,noreferrer");
-              else router.push(`/karya/${item.slug}?order=true`);
-            }}
+          <a
+            href={item.orderAction!.href}
+            target="_blank"
+            rel="noopener noreferrer"
             style={{
               padding: "var(--space-md) var(--space-2xl)",
               background: "var(--ink)",
@@ -214,13 +214,12 @@ export function KaryaDetail({ item }: { item: ItemData }) {
               textDecoration: "none",
               border: "2.5px solid var(--ink)",
               borderRadius: "var(--radius-md)",
-              boxShadow: item.is_sold_out ? "2px 2px 0 var(--ink)" : "4px 4px 0 var(--ink)",
-              cursor: item.is_sold_out ? "not-allowed" : "pointer",
-              opacity: item.is_sold_out ? 0.5 : 1,
+              boxShadow: "4px 4px 0 var(--ink)",
+              cursor: "pointer",
             }}
           >
-            {item.is_sold_out ? "Habis" : "Order via WhatsApp"}
-          </button>
+            {item.orderAction!.label}
+          </a>
         </div>
       )}
 

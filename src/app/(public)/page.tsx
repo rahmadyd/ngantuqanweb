@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { Render } from "@puckeditor/core";
 import config from "@/puck.config.server";
 import { createSupabaseServer } from "@/lib/supabase/server";
+import { generateHomeMetadata } from "@/lib/metadata";
 
 
 interface PuckData {
@@ -17,10 +18,7 @@ interface PuckData {
 export const revalidate = 0;
 
 export async function generateMetadata(): Promise<Metadata> {
-  const supabase = await createSupabaseServer();
-  const { data } = await supabase.from("pages").select("data").eq("slug", "home").single();
-  const puckData = data?.data as PuckData | null;
-  return { title: puckData?.root?.props?.title || "Ngantuqan" };
+  return generateHomeMetadata();
 }
 
 export default async function HomePage() {

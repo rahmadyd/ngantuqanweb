@@ -12,3 +12,4 @@ export { ContactFormBlock } from "./ContactFormBlock";
 export { StickerLayerBlock } from "./StickerLayerBlock";
 export { RichTextBlock } from "./RichTextBlock";
 export { SpacerBlock } from "./SpacerBlock";
+export { ShopCTABlock } from "./ShopCTABlock";

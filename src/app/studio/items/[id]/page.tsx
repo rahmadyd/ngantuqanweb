@@ -43,6 +43,7 @@ interface FormData {
   year: string;
   price_idr: string;
   order_url: string;
+  order_label: string;
   live_url: string;
   repo_url: string;
   is_featured: boolean;
@@ -82,6 +83,7 @@ export default function StudioItemEditPage() {
     year: "",
     price_idr: "",
     order_url: "",
+    order_label: "",
     live_url: "",
     repo_url: "",
     is_featured: false,
@@ -115,6 +117,7 @@ export default function StudioItemEditPage() {
           year: data.year?.toString() || "",
           price_idr: data.price_idr?.toString() || "",
           order_url: data.order_url || "",
+          order_label: data.order_label || "",
           live_url: data.live_url || "",
           repo_url: data.repo_url || "",
           is_featured: data.is_featured || false,
@@ -163,6 +166,7 @@ export default function StudioItemEditPage() {
         year: formData.year ? parseInt(formData.year, 10) : null,
         price_idr: formData.price_idr ? parseInt(formData.price_idr, 10) : null,
         order_url: formData.order_url || null,
+        order_label: formData.order_label || null,
         live_url: formData.live_url || null,
         repo_url: formData.repo_url || null,
         is_featured: formData.is_featured,
@@ -449,6 +453,21 @@ export default function StudioItemEditPage() {
               onChange={handleChange}
               style={{ width: "100%", padding: "var(--space-sm)", border: "2.5px solid var(--ink)", borderRadius: "var(--radius-md)", background: "var(--paper)", color: "var(--ink)" }}
             />
+          </div>
+
+          <div style={{ gridColumn: "1 / -1" }}>
+            <label style={{ display: "block", marginBottom: "var(--space-xs)", fontWeight: 600, color: "var(--ink)" }}>
+              Order Label
+            </label>
+            <input
+              name="order_label"
+              value={formData.order_label}
+              onChange={handleChange}
+              style={{ width: "100%", padding: "var(--space-sm)", border: "2.5px solid var(--ink)", borderRadius: "var(--radius-md)", background: "var(--paper)", color: "var(--ink)" }}
+            />
+            <p style={{ fontSize: "0.75rem", color: "var(--ink)", opacity: 0.7, marginTop: "var(--space-xs)" }}>
+              Label tombol order (kosong = pakai label default dari settings)
+            </p>
           </div>
 
           <div style={{ gridColumn: "1 / -1" }}>

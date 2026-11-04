@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { Render } from "@puckeditor/core";
 import config from "@/puck.config.server";
 import { createSupabaseServer } from "@/lib/supabase/server";
+import { generatePageMetadata } from "@/lib/metadata";
 
 
 interface PageProps {
@@ -23,9 +24,14 @@ export const revalidate = 0;
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createSupabaseServer();
-  const { data } = await supabase.from("pages").select("data").eq("slug", slug).single();
+  const { data } = await supabase.from("pages").select("data, seo_description").eq("slug", slug).single();
   const puckData = data?.data as PuckData | null;
-  return { title: puckData?.root?.props?.title || slug };
+  const seoDescription = data?.seo_description ?? undefined;
+  return generatePageMetadata({
+    title: puckData?.root?.props?.title ?? slug,
+    description: seoDescription,
+    path: `/${slug}`,
+  });
 }
 
 export default async function Page({ params }: PageProps) {

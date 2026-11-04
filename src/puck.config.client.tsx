@@ -15,6 +15,7 @@ import { ContactFormBlock } from "@/components/puck-blocks/ContactFormBlock";
 import { StickerLayerBlock } from "@/components/puck-blocks/StickerLayerBlock";
 import { RichTextBlock } from "@/components/puck-blocks/RichTextBlock";
 import { SpacerBlock } from "@/components/puck-blocks/SpacerBlock";
+import { ShopCTABlock } from "@/components/puck-blocks/ShopCTABlock";
 
 const validBackgroundTokens = ["brume", "menthe", "limonade", "verveine", "paper"] as const;
 const validColorTokens = ["brume", "menthe", "limonade", "verveine", "paper"] as const;
@@ -35,6 +36,7 @@ type Props = {
   sticklayer: { imageUrl: string; label: string; position: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center" };
   richtext: { content: string };
   spacer: { size: "S" | "M" | "L" };
+  shopcta: { title: string; subtitle: string; buttonText: string; buttonLink: string; backgroundToken: string };
 };
 
 export const config: Config<Props> = {
@@ -299,6 +301,27 @@ export const config: Config<Props> = {
         size: "M",
       },
       render: SpacerBlock,
+    },
+    shopcta: {
+      fields: {
+        title: { type: "text", label: "Judul" },
+        subtitle: { type: "text", label: "Subjudul" },
+        buttonText: { type: "text", label: "Teks Tombol" },
+        buttonLink: { type: "text", label: "Link Tombol" },
+        backgroundToken: {
+          type: "select",
+          label: "Background",
+          options: validBackgroundTokens.map(t => ({ value: t, label: t })),
+        },
+      },
+      defaultProps: {
+        title: "Cek Produk Kami",
+        subtitle: "Temukan produk kreatif yang cocok untuk Anda.",
+        buttonText: "Lihat Toko",
+        buttonLink: "/shop",
+        backgroundToken: "verveine",
+      },
+      render: ShopCTABlock,
     },
   },
 };

@@ -1,4 +1,8 @@
-import type { Config } from "@puckeditor/core";
+import Link from "next/link";
+import type { Config, PuckComponent } from "@puckeditor/core";
+import { createSupabaseServer } from "@/lib/supabase/server";
+import { getSettings } from "@/lib/settings";
+import { getOrderAction } from "@/lib/order";
 
 const validBackgroundTokens = ["brume", "menthe", "limonade", "verveine", "paper"] as const;
 const validColorTokens = ["brume", "menthe", "limonade", "verveine", "paper"] as const;
@@ -156,18 +160,112 @@ function ProjectGridBlock({ quantity, showFilter, showTab }: {
   );
 }
 
-function ProductGridBlock({ quantity, showFeaturedOnly }: {
+async function ProductGridBlock({ quantity, showFeaturedOnly }: {
   quantity: "4" | "6" | "all";
   showFeaturedOnly: boolean;
 }) {
+  const settings = await getSettings();
+  if (!settings.shop_enabled) return null;
+
+  const supabase = await createSupabaseServer();
+  let query = supabase
+    .from("items")
+    .select("slug, title, summary, cover_image, price_idr, is_sold_out, is_featured, order_url, order_label")
+    .eq("kind", "shop")
+    .eq("is_published", true)
+    .order("sort_order");
+
+  if (showFeaturedOnly) {
+    query = query.eq("is_featured", true);
+  }
+  if (quantity !== "all") {
+    query = query.limit(parseInt(quantity, 10));
+  }
+
+  const { data: products } = await query;
+  const items = products ?? [];
+
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
   return (
     <section style={{ padding: "var(--space-lg) 0" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "var(--space-lg)", flexWrap: "wrap", gap: "var(--space-md)" }}>
         <h2 style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", fontWeight: 800, color: "var(--ink)", margin: 0 }}>Produk</h2>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-lg)" }}>
-        <p style={{ gridColumn: "1 / -1", textAlign: "center", color: "var(--ink)", opacity: 0.6, padding: "var(--space-xl)" }}>Produk akan muncul di sini setelah dipublikasikan dan toko diaktifkan.</p>
-      </div>
+      {items.length === 0 ? (
+        <p style={{ textAlign: "center", color: "var(--ink)", opacity: 0.6, padding: "var(--space-xl)" }}>Belum ada produk.</p>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "var(--space-lg)" }}>
+          {(function () {
+            return items.map((product) => {
+              const orderAction = getOrderAction(
+                {
+                  order_url: product.order_url,
+                  order_label: product.order_label,
+                  title: product.title,
+                  slug: product.slug,
+                  is_sold_out: product.is_sold_out,
+                  kind: "shop" as const,
+                },
+                {
+                  wa_number: settings.wa_number,
+                  order_button_label: settings.order_button_label,
+                },
+                baseUrl,
+              );
+
+              return (
+                <article key={product.slug} style={{
+                  border: "2.5px solid var(--ink)",
+                  borderRadius: "var(--radius-lg)",
+                  boxShadow: "4px 4px 0 var(--ink)",
+                  overflow: "hidden",
+                  background: "var(--paper)",
+                  display: "flex",
+                  flexDirection: "column",
+                }}>
+                  {product.cover_image && (
+                    <Link href={`/karya/${product.slug}`}>
+                      <img src={product.cover_image} alt={product.title} style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }} width={400} height={400} />
+                    </Link>
+                  )}
+                  <div style={{ padding: "var(--space-md)", display: "flex", flexDirection: "column", flex: 1 }}>
+                    <Link href={`/karya/${product.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+                      <h3 style={{ fontSize: "1.125rem", fontWeight: 700, color: "var(--ink)", margin: "0 0 var(--space-xs)" }}>{product.title}</h3>
+                    </Link>
+                    {product.price_idr != null && (
+                      <p style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--verveine)", margin: "var(--space-xs) 0" }}>
+                        Rp {product.price_idr.toLocaleString("id-ID")}
+                      </p>
+                    )}
+                    {product.is_sold_out && <p style={{ color: "var(--pop)", fontWeight: 700, margin: "var(--space-xs) 0" }}>Habis</p>}
+                    {orderAction && (
+                      <a
+                        href={orderAction.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          marginTop: "auto",
+                          padding: "var(--space-sm) var(--space-lg)",
+                          background: "var(--ink)",
+                          color: "var(--paper)",
+                          border: "2.5px solid var(--ink)",
+                          borderRadius: "var(--radius-md)",
+                          fontWeight: 700,
+                          textDecoration: "none",
+                          textAlign: "center",
+                        }}
+                      >
+                        {product.is_sold_out ? "Habis" : orderAction.label}
+                      </a>
+                    )}
+                  </div>
+                </article>
+              );
+            });
+          })()}
+        </div>
+      )}
     </section>
   );
 }
@@ -376,7 +474,8 @@ function TimelineBlock({ events }: {
   );
 }
 
-function ContactFormBlock() {
+async function ContactFormBlock() {
+  const settings = await getSettings();
   return (
     <section style={{ 
       padding: "var(--space-xl)",
@@ -406,13 +505,97 @@ function ContactFormBlock() {
           <button type="button" style={{ padding: "var(--space-md) var(--space-xl)", background: "var(--ink)", color: "var(--paper)", fontWeight: 700, border: "2.5px solid var(--ink)", borderRadius: "var(--radius-md)", cursor: "not-allowed", boxShadow: "2px 2px 0 var(--ink)", opacity: 0.7 }} disabled>
             Kirim Pesan
           </button>
-          <a href="https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20berkontak%20melalui%20WhatsApp" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", padding: "var(--space-md) var(--space-xl)", background: "#25D366", color: "white", fontWeight: 700, border: "2.5px solid var(--ink)", borderRadius: "var(--radius-md)", textDecoration: "none", boxShadow: "4px 4px 0 var(--ink)" }}>
+          <a href={`https://wa.me/${settings.wa_number}?text=Halo,%20saya%20ingin%20berkontak%20melalui%20WhatsApp`} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", padding: "var(--space-md) var(--space-xl)", background: "#25D366", color: "white", fontWeight: 700, border: "2.5px solid var(--ink)", borderRadius: "var(--radius-md)", textDecoration: "none", boxShadow: "4px 4px 0 var(--ink)" }}>
             Via WhatsApp
           </a>
         </div>
       </form>
     </section>
   );
+}
+
+async function ShopCTABlock({ title, subtitle, buttonText, buttonLink, backgroundToken }: {
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  buttonLink: string;
+  backgroundToken: string;
+}) {
+  const settings = await getSettings();
+  if (!settings.shop_enabled) return null;
+
+  const backgroundStyles: Record<string, string> = {
+    brume: "var(--brume)",
+    menthe: "var(--menthe)",
+    limonade: "var(--limonade)",
+    verveine: "var(--verveine)",
+    paper: "var(--paper)",
+  };
+  const validToken = validBackgroundTokens.includes(backgroundToken as typeof validBackgroundTokens[number])
+    ? backgroundToken
+    : "brume";
+  const bgStyle = backgroundStyles[validToken] || backgroundStyles.brume;
+
+  return (
+    <section style={{
+      padding: "var(--space-2xl) var(--space-lg)",
+      border: "2.5px solid var(--ink)",
+      borderRadius: "var(--radius-lg)",
+      boxShadow: "4px 4px 0 var(--ink)",
+      textAlign: "center",
+      backgroundColor: bgStyle,
+    }}>
+      <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+        {title && <h2 style={{ fontSize: "clamp(1.75rem, 4vw, 2.5rem)", fontWeight: 800, color: "var(--ink)", margin: "0 0 var(--space-md)" }}>{title}</h2>}
+        {subtitle && <p style={{ fontSize: "clamp(1rem, 2.5vw, 1.25rem)", color: "var(--ink)", opacity: 0.8, margin: "0 0 var(--space-xl)", lineHeight: 1.6 }}>{subtitle}</p>}
+        {buttonText && buttonLink && (
+          <a href={buttonLink} style={{
+            display: "inline-block",
+            padding: "var(--space-md) var(--space-2xl)",
+            background: "var(--ink)",
+            color: "var(--paper)",
+            fontWeight: 700,
+            textDecoration: "none",
+            border: "2.5px solid var(--ink)",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "4px 4px 0 var(--ink)",
+          }}>
+            {buttonText}
+          </a>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function RichTextBlock({ content }: {
+  content: string;
+}) {
+  if (!content) {
+    return (
+      <div style={{ color: "var(--ink)", lineHeight: 1.8, fontSize: "1.0625rem", minHeight: "var(--space-xl)", opacity: 0.5 }}>
+        <em>Konten rich text (klik untuk edit)</em>
+      </div>
+    );
+  }
+  return (
+    <div
+      style={{ color: "var(--ink)", lineHeight: 1.8, fontSize: "1.0625rem" }}
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
+  );
+}
+
+function SpacerBlock({ size }: {
+  size: "S" | "M" | "L";
+}) {
+  const sizeStyles: Record<string, string> = {
+    S: "var(--space-md)",
+    M: "var(--space-xl)",
+    L: "var(--space-2xl)",
+  };
+  const height = sizeStyles[size] || sizeStyles.M;
+  return <div style={{ height }} aria-hidden="true" />;
 }
 
 function StickerLayerBlock({ imageUrl, label, position }: {
@@ -422,7 +605,7 @@ function StickerLayerBlock({ imageUrl, label, position }: {
 }) {
   if (!imageUrl) {
     return (
-      <div style={{ position: "absolute", opacity: 0, pointerEvents: "none" }} aria-hidden="true">
+      <div style={{ position: "absolute", opacity: 0 }} aria-hidden="true">
         <span style={{ fontSize: "0.75rem", color: "var(--ink)", opacity: 0.5 }}>Stiker dekoratif (tambahkan URL gambar)</span>
       </div>
     );
@@ -457,36 +640,6 @@ function StickerLayerBlock({ imageUrl, label, position }: {
   );
 }
 
-function RichTextBlock({ content }: {
-  content: string;
-}) {
-  if (!content) {
-    return (
-      <div style={{ color: "var(--ink)", lineHeight: 1.8, fontSize: "1.0625rem", minHeight: "var(--space-xl)", opacity: 0.5 }}>
-        <em>Konten rich text (klik untuk edit)</em>
-      </div>
-    );
-  }
-  return (
-    <div
-      style={{ color: "var(--ink)", lineHeight: 1.8, fontSize: "1.0625rem" }}
-      dangerouslySetInnerHTML={{ __html: content }}
-    />
-  );
-}
-
-function SpacerBlock({ size }: {
-  size: "S" | "M" | "L";
-}) {
-  const sizeStyles: Record<string, string> = {
-    S: "var(--space-md)",
-    M: "var(--space-xl)",
-    L: "var(--space-2xl)",
-  };
-  const height = sizeStyles[size] || sizeStyles.M;
-  return <div style={{ height }} aria-hidden="true" />;
-}
-
 type Props = {
   hero: { title: string; subtitle: string; ctaText: string; ctaLink: string; backgroundToken: string; imageUrl: string };
   marquee: { text: string; direction: "left" | "right"; speed: number; color: string };
@@ -502,6 +655,7 @@ type Props = {
   sticklayer: { imageUrl: string; label: string; position: "top-left" | "top-right" | "bottom-left" | "bottom-right" | "center" };
   richtext: { content: string };
   spacer: { size: "S" | "M" | "L" };
+  shopcta: { title: string; subtitle: string; buttonText: string; buttonLink: string; backgroundToken: string };
 };
 
 export const config: Config<Props> = {
@@ -553,7 +707,7 @@ export const config: Config<Props> = {
         showFeaturedOnly: { type: "checkbox", label: "Hanya Featured", options: [{ value: true, label: "Ya" }, { value: false, label: "Tidak" }] },
       },
       defaultProps: { quantity: "4", showFeaturedOnly: false },
-      render: ProductGridBlock,
+      render: ProductGridBlock as unknown as PuckComponent<Props["productgrid"]>,
     },
     cta: {
       fields: {
@@ -617,12 +771,8 @@ export const config: Config<Props> = {
         email: { type: "text", label: "Email" },
         message: { type: "richtext", label: "Pesan" },
       },
-      defaultProps: {
-        name: "",
-        email: "",
-        message: "",
-      },
-      render: ContactFormBlock,
+      defaultProps: { name: "", email: "", message: "" },
+      render: ContactFormBlock as unknown as PuckComponent<Props["contactform"]>,
     },
     sticklayer: {
       fields: {
@@ -644,6 +794,17 @@ export const config: Config<Props> = {
       },
       defaultProps: { size: "M" },
       render: SpacerBlock,
+    },
+    shopcta: {
+      fields: {
+        title: { type: "text", label: "Judul" },
+        subtitle: { type: "text", label: "Subjudul" },
+        buttonText: { type: "text", label: "Teks Tombol" },
+        buttonLink: { type: "text", label: "Link Tombol" },
+        backgroundToken: { type: "select", label: "Background", options: validBackgroundTokens.map(t => ({ value: t, label: t })) },
+      },
+      defaultProps: { title: "Cek Produk Kami", subtitle: "Temukan produk kreatif yang cocok untuk Anda.", buttonText: "Lihat Toko", buttonLink: "/shop", backgroundToken: "verveine" },
+      render: ShopCTABlock as unknown as PuckComponent<Props["shopcta"]>,
     },
   },
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./PuckBlocks.module.css";
 
 interface ContactFormBlockProps {
@@ -10,9 +10,17 @@ interface ContactFormBlockProps {
 }
 
 export function ContactFormBlock({ name, email, message }: ContactFormBlockProps) {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [formData, setFormData] = useState({ name: "", email: "", message: "", honeypot: "" });
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [waNumber, setWaNumber] = useState("6281234567890");
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d) => setWaNumber(d.wa_number || "6281234567890"))
+      .catch(() => setWaNumber("6281234567890"));
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +40,7 @@ export function ContactFormBlock({ name, email, message }: ContactFormBlockProps
       }
 
       setStatus("success");
-      setFormData({ name: "", email: "", message: "" });
+      setFormData({ name: "", email: "", message: "", honeypot: "" });
     } catch (err) {
       setStatus("error");
       setErrorMsg(err instanceof Error ? err.message : "Terjadi kesalahan");
@@ -42,6 +50,15 @@ export function ContactFormBlock({ name, email, message }: ContactFormBlockProps
   return (
     <section className={styles.contactForm}>
       <form onSubmit={handleSubmit} className={styles.form} noValidate>
+        <input
+          type="hidden"
+          name="honeypot"
+          value={formData.honeypot}
+          onChange={(e) => setFormData(prev => ({ ...prev, honeypot: e.target.value }))}
+          tabIndex={-1}
+          autoComplete="off"
+          style={{ display: "none" }}
+        />
         <div className={styles.field}>
           <label htmlFor="contact-name" className={styles.label}>Nama</label>
           <input
@@ -86,7 +103,7 @@ export function ContactFormBlock({ name, email, message }: ContactFormBlockProps
             {status === "submitting" ? "Mengirim..." : "Kirim Pesan"}
           </button>
           <a
-            href={`https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20berkontak%20melalui%20WhatsApp`}
+            href={`https://wa.me/${waNumber}?text=Halo,%20saya%20ingin%20berkontak%20melalui%20WhatsApp`}
             target="_blank"
             rel="noopener noreferrer"
             className={styles.whatsappBtn}

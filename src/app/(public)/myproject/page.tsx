@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { createSupabaseServer } from "@/lib/supabase/server";
+import { generatePageMetadata } from "@/lib/metadata";
 
 interface ProjectItem {
   slug: string;
@@ -12,7 +13,11 @@ interface ProjectItem {
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Proyek | Ngantuqan" };
+  return generatePageMetadata({
+    title: "Proyek",
+    description: "Kumpulan proyek branding, web, dan desain yang telah kami kerjakan.",
+    path: "/myproject",
+  });
 }
 
 export default async function MyProjectPage() {

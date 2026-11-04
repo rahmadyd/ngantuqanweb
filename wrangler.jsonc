@@ -28,19 +28,13 @@
       "bucket_name": "ngantuqanweb-inc-cache"
     }
   ],
-  "durable_objects": {
-    "bindings": [
-      {
-        // Tag cache untuk on-demand revalidation (revalidateTag / revalidatePath).
-        "name": "NEXT_TAG_CACHE_DO_SHARDED",
-        "class_name": "DOShardedTagCache"
-      }
-    ]
-  },
-  "migrations": [
+  "kv_namespaces": [
     {
-      "tag": "v1",
-      "new_sqlite_classes": ["DOShardedTagCache"]
+      // KV namespace untuk tag cache (kv-next-tag-cache).
+      // Buat namespace-nya: npx wrangler kv namespace create NEXT_TAG_CACHE_KV
+      "binding": "NEXT_TAG_CACHE_KV",
+      "id": "961a712d1acd4f56995169232844e24c",
+      "preview_id": "443e8173b8d34b6abb12f6e355f0b657"
     }
   ],
   "observability": {

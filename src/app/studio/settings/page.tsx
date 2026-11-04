@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Badge } from "@/components/ui";
-import { Button } from "@/components/ui";
 import styles from "../studio.module.css";
 
 export default function StudioSettingsPage() {
@@ -11,6 +9,7 @@ export default function StudioSettingsPage() {
     shop_enabled: false,
     site_title: "",
     wa_number: "",
+    order_button_label: "",
     shop_closed_message: "",
   });
   const [saving, setSaving] = useState(false);
@@ -30,6 +29,11 @@ export default function StudioSettingsPage() {
     } catch (err) {
       console.error("Gagal memuat setting:", err);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setSettings(prev => ({ ...prev, [name]: value }));
   };
 
   const handleToggle = async () => {
@@ -54,41 +58,129 @@ export default function StudioSettingsPage() {
     }
   };
 
+  const handleSaveSettings = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(settings),
+      });
+      if (res.ok) {
+        alert("Settingan tersimpan");
+        fetchSettings();
+      } else {
+        alert("Gagal menyimpan settingan");
+      }
+    } catch (err) {
+      alert("Gagal menyimpan settingan");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div>
-      <Badge color={shopEnabled ? "verveine" : "pop"}>Shop {shopEnabled ? "nyala" : "mati"}</Badge>
-      <div style={{ marginBlock: "var(--space-md)" }}>
-        <label>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-md)", marginBottom: "var(--space-lg)" }}>
+        <span className={styles.badge} style={{ background: shopEnabled ? "var(--verveine)" : "var(--pop)" }}>
+          Shop {shopEnabled ? "nyala" : "mati"}
+        </span>
+        <label style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
           <input
             type="checkbox"
             checked={shopEnabled}
             onChange={handleToggle}
             disabled={saving}
-            style={{ marginRight: "var(--space-sm)" }}
           />
-          Nyalakan Toko
-        </label>
-        <label>
-          <input
-            type="checkbox"
-            checked={!shopEnabled}
-            onChange={handleToggle}
-            disabled={saving}
-            style={{ marginLeft: "var(--space-sm)" }}
-          />
-          Matikan Toko
+          <span>Nyalakan Toko</span>
         </label>
       </div>
-      <dl className={styles.note} style={{ marginBlock: "var(--space-md)" }}>
-        <div>
-          <dt>Judul</dt>
-          <dd>{settings.site_title}</dd>
+
+      <div style={{ marginBlock: "var(--space-lg)" }}>
+        <h3 style={{ fontWeight: 700, marginBottom: "var(--space-md)", color: "var(--ink)" }}>Pengaturan Situs</h3>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "var(--space-md)" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+            <label style={{ fontWeight: 600, color: "var(--ink)", fontSize: "0.875rem" }}>Judul Situs</label>
+            <input
+              name="site_title"
+              value={settings.site_title}
+              onChange={handleInputChange}
+              style={{ padding: "var(--space-sm) var(--space-md)", border: "2.5px solid var(--ink)", borderRadius: "var(--radius-md)", background: "var(--paper)", color: "var(--ink)", fontFamily: "inherit", fontSize: "1rem" }}
+            />
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+            <label style={{ fontWeight: 600, color: "var(--ink)", fontSize: "0.875rem" }}>Nomor WhatsApp</label>
+            <input
+              name="wa_number"
+              type="tel"
+              value={settings.wa_number}
+              onChange={handleInputChange}
+              placeholder="628xxxxxxxxxx"
+              style={{ padding: "var(--space-sm) var(--space-md)", border: "2.5px solid var(--ink)", borderRadius: "var(--radius-md)", background: "var(--paper)", color: "var(--ink)", fontFamily: "inherit", fontSize: "1rem" }}
+            />
+            <p style={{ fontSize: "0.75rem", color: "var(--ink)", opacity: 0.7 }}>Tanpa +62 atau 0, contoh: 6281234567890</p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+            <label style={{ fontWeight: 600, color: "var(--ink)", fontSize: "0.875rem" }}>Label Tombol Order Default</label>
+            <input
+              name="order_button_label"
+              value={settings.order_button_label}
+              onChange={handleInputChange}
+              style={{ padding: "var(--space-sm) var(--space-md)", border: "2.5px solid var(--ink)", borderRadius: "var(--radius-md)", background: "var(--paper)", color: "var(--ink)", fontFamily: "inherit", fontSize: "1rem" }}
+            />
+            <p style={{ fontSize: "0.75rem", color: "var(--ink)", opacity: 0.7 }}>Digunakan saat item.order_label kosong</p>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
+            <label style={{ fontWeight: 600, color: "var(--ink)", fontSize: "0.875rem" }}>Pesan Toko Tutup</label>
+            <textarea
+              name="shop_closed_message"
+              value={settings.shop_closed_message}
+              onChange={handleInputChange}
+              rows={3}
+              style={{ padding: "var(--space-sm) var(--space-md)", border: "2.5px solid var(--ink)", borderRadius: "var(--radius-md)", background: "var(--paper)", color: "var(--ink)", fontFamily: "inherit", fontSize: "1rem", resize: "vertical" }}
+            />
+          </div>
         </div>
-        <div>
-          <dt>WhatsApp</dt>
-          <dd>{settings.wa_number}</dd>
-        </div>
-      </dl>
+      </div>
+
+      <div style={{ marginTop: "var(--space-xl)", display: "flex", gap: "var(--space-md)" }}>
+        <button
+          onClick={handleToggle}
+          disabled={saving}
+          style={{
+            padding: "var(--space-md) var(--space-xl)",
+            background: shopEnabled ? "var(--pop)" : "var(--verveine)",
+            color: "var(--paper)",
+            border: "2.5px solid var(--ink)",
+            borderRadius: "var(--radius-md)",
+            fontWeight: 700,
+            cursor: saving ? "not-allowed" : "pointer",
+            boxShadow: saving ? "2px 2px 0 var(--ink)" : "4px 4px 0 var(--ink)",
+            opacity: saving ? 0.7 : 1,
+          }}
+        >
+          {saving ? "Menyimpan..." : shopEnabled ? "Matikan Toko" : "Nyalakan Toko"}
+        </button>
+
+        <button
+          onClick={handleSaveSettings}
+          disabled={saving}
+          style={{
+            padding: "var(--space-md) var(--space-xl)",
+            background: "var(--ink)",
+            color: "var(--paper)",
+            border: "2.5px solid var(--ink)",
+            borderRadius: "var(--radius-md)",
+            fontWeight: 700,
+            cursor: saving ? "not-allowed" : "pointer",
+            boxShadow: saving ? "2px 2px 0 var(--ink)" : "4px 4px 0 var(--ink)",
+            opacity: saving ? 0.7 : 1,
+          }}
+        >
+          {saving ? "Menyimpan..." : "Simpan Semua Setting"}
+        </button>
+      </div>
+
       <p style={{ marginBlock: "var(--space-md)", fontSize: "0.875rem" }}>Perubahan akan terlihat di publik tanpa redeploy.</p>
     </div>
   );

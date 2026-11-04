@@ -33,6 +33,7 @@ export async function updateItem(id: string, data: {
   year?: number | null;
   price_idr?: number | null;
   order_url?: string | null;
+  order_label?: string | null;
   live_url?: string | null;
   repo_url?: string | null;
   is_featured?: boolean;
