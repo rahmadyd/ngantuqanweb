@@ -1,15 +1,11 @@
 import { createClient } from "@supabase/supabase-js";
-import { config } from "dotenv";
-import { resolve } from "path";
-
-config({ path: resolve(process.cwd(), ".env.local") });
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!url || !key) {
   console.error("Supabase URL/Service Role Key not configured");
-  console.error("Make sure .env.local exists with NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY");
+  console.error("Set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY env vars");
   process.exit(1);
 }
 
@@ -104,7 +100,7 @@ const aboutPageData = {
     {
       type: "richtext",
       props: {
-        content: "<h2>Layanan Kami</h2><ul><li>Branding & Identitas Visual</li><li>Desain Website & UI/UX</li><li>Ilustrasi & Grafis Kustom</li><li>Merch & Produk Fisik</li></ul><h2>Cara Kerja</h2><p>1. Diskusi kebutuhan & riset<br/>2. Konsep & presentasi<br/>3. Revisi & finalisasi<br/>4. Handoff & dukungan</p>",
+        content: "<h2>Layanan Kami</h2><ul><li>Branding & Identitas Visual</li><li>Desain Website & UI/UX</li><li>Ilustrasi & Grafis Kustom</li><li>Merch & Produk Fisik</li></ul><h2>Cara Kerja</h2><p>1. Diskusi kebutuhan & riset<br/>2. Konsep & presentasi<br/>2. Revisi & finalisasi<br/>4. Handoff & dukungan</p>",
       },
     },
     {
