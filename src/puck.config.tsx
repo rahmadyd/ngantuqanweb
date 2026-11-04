@@ -65,6 +65,87 @@ export default {
         showFeaturedOnly: false,
       },
     },
+    casestudy: {
+      name: "CaseStudy",
+      defaultContent: {
+        type: "casestudy",
+        title: "Case Study",
+        client: "",
+        project: "",
+        outcome: "",
+        imageUrl: "",
+      },
+    },
+    gallery: {
+      name: "Gallery",
+      defaultContent: {
+        type: "gallery",
+        images: [],
+        columns: "3",
+      },
+    },
+    testimonial: {
+      name: "Testimonial",
+      defaultContent: {
+        type: "testimonial",
+        name: "",
+        role: "",
+        text: "",
+        company: "",
+        rating: 5,
+      },
+    },
+    timeline: {
+      name: "Timeline",
+      defaultContent: {
+        type: "timeline",
+        events: [
+          { title: "Event 1", date: "", description: "" },
+          { title: "Event 2", date: "", description: "" },
+        ],
+      },
+    },
+    contactform: {
+      name: "ContactForm",
+      defaultContent: {
+        type: "contactform",
+        name: "",
+        email: "",
+        message: "",
+      },
+    },
+    sticklayer: {
+      name: "StickerLayer",
+      defaultContent: {
+        type: "sticklayer",
+        imageUrl: "",
+        label: "",
+        position: "top-right",
+      },
+    },
+    richtext: {
+      name: "RichText",
+      defaultContent: {
+        type: "richtext",
+        content: "",
+      },
+    },
+    spicer: {
+      name: "Spicer",
+      defaultContent: {
+        type: "spicer",
+        title: "",
+        text: "",
+        backgroundToken: "brume",
+      },
+      validate: (props: { backgroundToken?: string }) => {
+        const validTokens = ["brume", "menthe", "limonade", "verveine", "paper"];
+        if (props.backgroundToken && !validTokens.includes(props.backgroundToken)) {
+          return `backgroundToken harus salah satu dari: ${validTokens.join(", ")}`;
+        }
+        return null;
+      },
+    },
     cta: {
       name: "CTA",
       defaultContent: {
@@ -91,5 +172,7 @@ export default {
     color: ["brume", "menthe", "limonade", "verveine", "paper"],
     // Ukuran S/M/L (tidak ada px bebas)
     size: ["small", "medium", "large"],
+    // Background token untuk block tambahan
+    backgroundToken: ["brume", "menthe", "limonade", "verveine", "paper"],
   },
 };

@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
-import { PlaceholderPage } from "@/components/site/PlaceholderPage";
+import { isShopEnabled } from "@/lib/settings";
+import { SearchClient } from "./SearchClient";
 
-export const metadata: Metadata = { title: "Cari" };
+export async function generateMetadata(): Promise<Metadata> {
+  return { title: "Pencarian" };
+}
 
-export default function SearchPage() {
-  return (
-    <PlaceholderPage
-      title="Cari"
-      body="Pencarian karya menyusul setelah data items di Fase 3."
-    />
-  );
+export default async function SearchPage() {
+  const shopEnabled = await isShopEnabled();
+  return <SearchClient shopEnabled={shopEnabled} />;
 }

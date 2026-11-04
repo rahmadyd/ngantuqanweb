@@ -1,0 +1,1 @@
+alter table items add column if not exists alt_text text;

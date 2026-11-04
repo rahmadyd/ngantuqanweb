@@ -1,0 +1,106 @@
+"use client";
+
+import { useState } from "react";
+import styles from "./PuckBlocks.module.css";
+
+interface ContactFormBlockProps {
+  name: string;
+  email: string;
+  message: string;
+}
+
+export function ContactFormBlock({ name, email, message }: ContactFormBlockProps) {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus("submitting");
+    setErrorMsg("");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Gagal mengirim");
+      }
+
+      setStatus("success");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (err) {
+      setStatus("error");
+      setErrorMsg(err instanceof Error ? err.message : "Terjadi kesalahan");
+    }
+  };
+
+  return (
+    <section className={styles.contactForm}>
+      <form onSubmit={handleSubmit} className={styles.form} noValidate>
+        <div className={styles.field}>
+          <label htmlFor="contact-name" className={styles.label}>Nama</label>
+          <input
+            id="contact-name"
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            required
+            className={styles.input}
+            disabled={status === "submitting"}
+          />
+        </div>
+        <div className={styles.field}>
+          <label htmlFor="contact-email" className={styles.label}>Email</label>
+          <input
+            id="contact-email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+            required
+            className={styles.input}
+            disabled={status === "submitting"}
+          />
+        </div>
+        <div className={styles.field}>
+          <label htmlFor="contact-message" className={styles.label}>Pesan</label>
+          <textarea
+            id="contact-message"
+            name="message"
+            value={formData.message}
+            onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+            required
+            rows={5}
+            className={styles.textarea}
+            disabled={status === "submitting"}
+          />
+        </div>
+        <div className={styles.actions}>
+          <button type="submit" className={styles.submitBtn} disabled={status === "submitting"}>
+            {status === "submitting" ? "Mengirim..." : "Kirim Pesan"}
+          </button>
+          <a
+            href={`https://wa.me/6281234567890?text=Halo,%20saya%20ingin%20berkontak%20melalui%20WhatsApp`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.whatsappBtn}
+          >
+            Via WhatsApp
+          </a>
+        </div>
+        {status === "success" && (
+          <p className={styles.successMsg}>Pesan terkirim! Kami akan balas segera.</p>
+        )}
+        {status === "error" && (
+          <p className={styles.errorMsg} role="alert">{errorMsg}</p>
+        )}
+      </form>
+    </section>
+  );
+}

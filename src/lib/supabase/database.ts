@@ -70,6 +70,7 @@ export type Database = {
           is_sold_out: boolean;
           is_published: boolean;
           sort_order: number;
+          alt_text: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -94,6 +95,7 @@ export type Database = {
           is_sold_out?: boolean;
           is_published?: boolean;
           sort_order?: number;
+          alt_text?: string | null;
           created_at?: string;
           updated_at?: string;
         };
