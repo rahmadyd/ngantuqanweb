@@ -11,7 +11,6 @@ import {
   Separator,
   LatestWorks,
   Products,
-  HowItWorks,
   Contact,
   Footer,
 } from "@/components/home";
@@ -141,9 +140,6 @@ export default async function HomePage({
         title={homeData.hero.title}
         subtitle={homeData.hero.subtitle}
         tagline={homeData.hero.tagline}
-        ctaPrimary={homeData.hero.ctaPrimary}
-        ctaSecondary={homeData.hero.ctaSecondary}
-        shopEnabled={shopEnabled}
       />
       <NavBar items={navItems} pathname="/" marqueeText={homeData.nav.marqueeText} />
       <About consoleLines={homeData.about.consoleLines} ctaLabel={homeData.about.ctaLabel} ctaHref={homeData.about.ctaHref} />
@@ -156,7 +152,6 @@ export default async function HomePage({
       />
       <Separator label={homeData.separator2.label} background="menthe" />
       <Products items={productItems.length > 0 ? productItems : homeData.products.items} ctaLabel={homeData.products.ctaLabel} shopEnabled={shopEnabled} />
-      <HowItWorks steps={homeData.howItWorks.steps} />
       <Contact
         title={homeData.contact.title}
         fields={homeData.contact.fields}

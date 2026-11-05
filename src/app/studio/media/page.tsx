@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { Section } from "@/components/ui";
 
 const MediaUploader = dynamic(
-  () => import("@/components/MediaUploaderWrapper").then((mod) => mod.MediaUploaderWrapper),
+  () => import("@/components/ImageUploader").then((mod) => mod.ImageUploader),
   {
     ssr: false,
     loading: () => <div style={{ padding: "var(--space-md)", color: "var(--ink)" }}>Memuat uploader...</div>,

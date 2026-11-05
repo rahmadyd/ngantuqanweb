@@ -38,30 +38,24 @@ export function LatestWorks({ label, items, ctaLabel, ctaHref }: LatestWorksProp
                       <Image
                         src={item.image}
                         alt={item.title}
-                        width={300}
-                        height={200}
+                        width={400}
+                        height={250}
                         className={styles.image}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                        sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     </Link>
                   ) : (
                     <Image
                       src={item.image}
                       alt={item.title}
-                      width={300}
-                      height={200}
+                      width={400}
+                      height={250}
                       className={styles.image}
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   )}
                 </div>
                 <div className={styles.base} />
-              </div>
-              <div className={styles.badge} aria-label={`Karya nomor ${item.id}`}>
-                {item.id}
-              </div>
-              <div className={styles.category} aria-label={`Kategori: ${item.category}`}>
-                {item.category}
               </div>
               <h3 className={styles.title}>{item.title}</h3>
             </article>

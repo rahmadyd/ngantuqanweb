@@ -11,9 +11,10 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-lg);
   width: 100%;
+  max-width: 900px;
 }
 
 .productCard {
@@ -21,7 +22,7 @@
   flex-direction: column;
   background: var(--paper);
   border: 2.5px solid var(--ink);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-pill);
   box-shadow: var(--shadow-hard);
   overflow: hidden;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast);
@@ -33,7 +34,7 @@
 }
 
 .imageWrapper {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 4 / 3;
   overflow: hidden;
   background: var(--brume);
 }
@@ -97,12 +98,6 @@
 
 .orderLink :global(.button) {
   width: 100%;
-}
-
-@media (max-width: 1024px) {
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
 }
 
 @media (max-width: 768px) {

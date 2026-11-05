@@ -6,19 +6,15 @@
 .container {
   display: flex;
   flex-direction: column;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-xl);
   align-items: center;
+  text-align: center;
 }
 
 .content {
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
+  max-width: 60ch;
 }
 
 .title {
@@ -34,15 +30,7 @@
   font-family: var(--font-body);
   font-size: clamp(1.125rem, 2.5vw, 1.5rem);
   color: var(--ink);
-  max-width: 40ch;
   margin: 0;
-}
-
-.ctaGroup {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-md);
-  margin-top: var(--space-sm);
 }
 
 .tagline {
@@ -55,95 +43,4 @@
   margin-top: var(--space-md);
   display: inline-block;
   width: fit-content;
-}
-
-.illustration {
-  position: relative;
-  height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.floatingWrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.capsule {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  max-width: 140px;
-}
-
-.star1 {
-  position: absolute;
-  top: 15%;
-  left: 15%;
-  animation: float 3s ease-in-out infinite;
-}
-
-.star2 {
-  position: absolute;
-  top: 20%;
-  right: 20%;
-  animation: float 4s ease-in-out infinite reverse;
-}
-
-.star3 {
-  position: absolute;
-  bottom: 25%;
-  left: 10%;
-  animation: float 2.5s ease-in-out infinite;
-}
-
-.cloud1 {
-  position: absolute;
-  top: 10%;
-  right: 10%;
-  max-width: 180px;
-  animation: float 5s ease-in-out infinite;
-}
-
-.cloud2 {
-  position: absolute;
-  bottom: 15%;
-  right: 15%;
-  max-width: 140px;
-  animation: float 6s ease-in-out infinite reverse;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-12px); }
-  }
-}
-
-@media (max-width: 768px) {
-  .grid {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  .content {
-    align-items: center;
-  }
-
-  .ctaGroup {
-    justify-content: center;
-  }
-
-  .illustration {
-    height: 250px;
-    order: -1;
-  }
-
-  .cloud1,
-  .cloud2 {
-    display: none;
-  }
 }
