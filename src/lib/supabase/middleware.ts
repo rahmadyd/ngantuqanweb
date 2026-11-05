@@ -17,9 +17,13 @@ function nextWithPathname(request: NextRequest) {
 }
 
 function applySessionCookies(from: NextResponse, to: NextResponse) {
-  from.cookies.getAll().forEach((cookie) => {
-    to.cookies.set(cookie);
-  });
+  try {
+    from.cookies.getAll().forEach((cookie) => {
+      to.cookies.set(cookie);
+    });
+  } catch {
+    // cookie access may fail in some runtime contexts; ignore.
+  }
   for (const header of ["cache-control", "expires", "pragma"]) {
     const value = from.headers.get(header);
     if (value) to.headers.set(header, value);
@@ -32,71 +36,109 @@ function withStudioHeaders(response: NextResponse) {
   return response;
 }
 
-export async function updateSession(request: NextRequest) {
-  let supabaseResponse = nextWithPathname(request);
-
-  const isStudio = request.nextUrl.pathname.startsWith("/studio");
-  const isStudioLogin = request.nextUrl.pathname === STUDIO_LOGIN;
-
-  if (isStudio) {
-    withStudioHeaders(supabaseResponse);
-  }
-
-  if (!isSupabaseConfigured()) {
-    if (isStudio && !isStudioLogin) {
-      const url = request.nextUrl.clone();
-      url.pathname = STUDIO_LOGIN;
-      url.searchParams.set("reason", "unconfigured");
-      return withStudioHeaders(NextResponse.redirect(url));
+export async function updateSession(request: NextRequest): Promise<NextResponse> {
+  try {
+    let supabaseResponse: NextResponse;
+    try {
+      supabaseResponse = nextWithPathname(request);
+    } catch {
+      return NextResponse.next();
     }
-    return supabaseResponse;
-  }
 
-  const supabase = createServerClient<Database>(getSupabaseUrl()!, getSupabaseAnonKey()!, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet, headers) {
-        cookiesToSet.forEach(({ name, value }) => {
-          request.cookies.set(name, value);
-        });
-        supabaseResponse = nextWithPathname(request);
-        if (isStudio) withStudioHeaders(supabaseResponse);
-        cookiesToSet.forEach(({ name, value, options }) => {
-          supabaseResponse.cookies.set(name, value, options);
-        });
-        Object.entries(headers ?? {}).forEach(([key, value]) => {
-          supabaseResponse.headers.set(key, value);
-        });
-      },
-    },
-  });
+    const isStudio = request.nextUrl.pathname.startsWith("/studio");
+    const isStudioLogin = request.nextUrl.pathname === STUDIO_LOGIN;
 
-  const { data } = await supabase.auth.getClaims();
-  const email =
-    typeof data?.claims?.email === "string" ? data.claims.email.toLowerCase() : undefined;
-  const isAdmin = isAllowlistedEmail(email);
+    if (isStudio) {
+      withStudioHeaders(supabaseResponse);
+    }
 
-  if (isStudio && !isStudioLogin) {
-    if (!email || !isAdmin) {
-      const url = request.nextUrl.clone();
-      url.pathname = STUDIO_LOGIN;
-      url.searchParams.set("next", request.nextUrl.pathname);
-      if (email && !isAdmin) {
-        url.searchParams.set("reason", "forbidden");
-        await supabase.auth.signOut();
+    if (!isSupabaseConfigured()) {
+      if (isStudio && !isStudioLogin) {
+        const url = request.nextUrl.clone();
+        url.pathname = STUDIO_LOGIN;
+        url.searchParams.set("reason", "unconfigured");
+        return withStudioHeaders(NextResponse.redirect(url));
       }
+      return supabaseResponse;
+    }
+
+    let supabase;
+    try {
+      supabase = createServerClient<Database>(getSupabaseUrl()!, getSupabaseAnonKey()!, {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll();
+          },
+      setAll(cookiesToSet, headers) {
+        try {
+          supabaseResponse = nextWithPathname(request);
+        } catch {
+          return;
+        }
+        if (isStudio) withStudioHeaders(supabaseResponse);
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            supabaseResponse.cookies.set(name, value, {
+              ...options,
+              httpOnly: true,
+              secure: true,
+              sameSite: "lax",
+            });
+          });
+        } catch {
+          // ignore
+        }
+        try {
+          Object.entries(headers ?? {}).forEach(([key, value]) => {
+            supabaseResponse.headers.set(key, value);
+          });
+        } catch {
+          // ignore
+        }
+      },
+        },
+      });
+    } catch {
+      return supabaseResponse;
+    }
+
+    let email: string | undefined;
+    try {
+      const { data } = await supabase.auth.getClaims();
+      email =
+        typeof data?.claims?.email === "string" ? data.claims.email.toLowerCase() : undefined;
+    } catch {
+      email = undefined;
+    }
+
+    const isAdmin = isAllowlistedEmail(email);
+
+    if (isStudio && !isStudioLogin) {
+      if (!email || !isAdmin) {
+        const url = request.nextUrl.clone();
+        url.pathname = STUDIO_LOGIN;
+        url.searchParams.set("next", request.nextUrl.pathname);
+        if (email && !isAdmin) {
+          url.searchParams.set("reason", "forbidden");
+          try {
+            await supabase.auth.signOut();
+          } catch {
+            // ignore
+          }
+        }
+        return withStudioHeaders(applySessionCookies(supabaseResponse, NextResponse.redirect(url)));
+      }
+    }
+
+    if (isStudioLogin && isAdmin) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/studio";
+      url.search = "";
       return withStudioHeaders(applySessionCookies(supabaseResponse, NextResponse.redirect(url)));
     }
-  }
 
-  if (isStudioLogin && isAdmin) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/studio";
-    url.search = "";
-    return withStudioHeaders(applySessionCookies(supabaseResponse, NextResponse.redirect(url)));
+    return supabaseResponse;
+  } catch {
+    return NextResponse.next();
   }
-
-  return supabaseResponse;
 }

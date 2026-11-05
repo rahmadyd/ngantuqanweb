@@ -10,22 +10,36 @@ export async function createSupabaseServer() {
     throw new Error("Supabase belum dikonfigurasi.");
   }
 
-  const cookieStore = await cookies();
+  let cookieStore;
+  try {
+    cookieStore = await cookies();
+  } catch {
+    cookieStore = undefined;
+  }
 
-  return createServerClient<Database>(url, key, {
-    cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
+  try {
+    return createServerClient<Database>(url, key, {
+      cookies: {
+        getAll() {
+          return cookieStore?.getAll() ?? [];
+        },
       setAll(cookiesToSet) {
         try {
           cookiesToSet.forEach(({ name, value, options }) => {
-            cookieStore.set(name, value, options);
+            cookieStore?.set(name, value, {
+              ...options,
+              httpOnly: true,
+              secure: true,
+              sameSite: "lax",
+            });
           });
         } catch {
-          // Server Component tidak bisa menulis cookie; middleware yang me-refresh sesi.
+          // ignore
         }
       },
-    },
-  });
+      },
+    });
+  } catch {
+    throw new Error("Gagal membuat klien Supabase.");
+  }
 }

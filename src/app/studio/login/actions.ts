@@ -1,8 +1,10 @@
-"use server";
+﻿"use server";
 
-import { isAllowlistedEmail } from "@/lib/auth/allowlist";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { consumeRateLimit } from "@/lib/rate-limit";
-import { getSiteUrl, isSupabaseConfigured } from "@/lib/supabase/env";
+import { isAllowlistedEmail } from "@/lib/auth/allowlist";
+import { isSupabaseConfigured } from "@/lib/supabase/env";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 export type LoginState = {
@@ -10,16 +12,21 @@ export type LoginState = {
   error?: string;
 };
 
-export async function sendMagicLink(
+export async function signInWithPassword(
   _prev: LoginState,
   formData: FormData,
 ): Promise<LoginState> {
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
+  const password = String(formData.get("password") ?? "");
 
   if (!email || !email.includes("@")) {
     return { error: "Masukkan alamat email yang valid." };
+  }
+
+  if (!password || password.length < 6) {
+    return { error: "Kata sandi terlalu pendek." };
   }
 
   const limit = await consumeRateLimit("ngantuqan_login_rl", 5, 10 * 60 * 1000);
@@ -28,25 +35,45 @@ export async function sendMagicLink(
   }
 
   if (!isSupabaseConfigured()) {
-    return { error: "Supabase belum dikonfigurasi. Isi env dulu." };
+    return { error: "Gagal masuk. Coba lagi nanti." };
   }
 
-  if (!isAllowlistedEmail(email)) {
-    return { ok: true };
+  let supabase;
+  try {
+    supabase = await createSupabaseServer();
+  } catch {
+    return { error: "Gagal masuk. Coba lagi nanti." };
   }
 
-  const supabase = await createSupabaseServer();
-  const { error } = await supabase.auth.signInWithOtp({
-    email,
-    options: {
-      shouldCreateUser: false,
-      emailRedirectTo: `${getSiteUrl()}/auth/callback?next=/studio`,
-    },
-  });
+  let error;
+  try {
+    const result = await supabase.auth.signInWithPassword({ email, password });
+    error = result.error;
+  } catch {
+    return { error: "Gagal masuk. Coba lagi nanti." };
+  }
 
   if (error) {
-    return { error: "Gagal mengirim tautan. Coba lagi nanti." };
+    return { error: "Email atau kata sandi salah." };
   }
 
-  return { ok: true };
+  const { data } = await supabase.auth.getClaims();
+  const sessionEmail =
+    typeof data?.claims?.email === "string" ? data.claims.email.toLowerCase() : undefined;
+
+  if (!sessionEmail || !isAllowlistedEmail(sessionEmail)) {
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // ignore
+    }
+    return { error: "Email atau kata sandi salah." };
+  }
+
+  const headersList = await headers();
+  const host = headersList.get("host") ?? "localhost:3000";
+  const protocol = host.includes("localhost") ? "http" : "https";
+  const siteUrl = `${protocol}://${host}`;
+
+  redirect(`${siteUrl}/studio`);
 }

@@ -14,16 +14,16 @@ export default async function StudioLoginPage({ searchParams }: LoginPageProps) 
       <p className={styles.brand}>Studio</p>
       <h1 style={{ marginBlock: "var(--space-md)" }}>Masuk sebagai pemilik</h1>
       <p style={{ marginBlockEnd: "var(--space-lg)", maxWidth: "46ch" }}>
-        Isi email yang sudah di-allowlist. Kami kirim magic link — tidak ada kata sandi.
+        Masuk dengan email dan kata sandi admin.
       </p>
       {reason === "forbidden" ? (
         <p className={styles.note} style={{ marginBlockEnd: "var(--space-md)" }}>
-          Email itu tidak ada di daftar admin.
+          Akses ditolak.
         </p>
       ) : null}
       {reason === "unconfigured" ? (
         <p className={styles.note} style={{ marginBlockEnd: "var(--space-md)" }}>
-          Supabase belum siap. Isi <code>.env.local</code> lalu jalankan ulang.
+          Supabase belum siap.
         </p>
       ) : null}
       <LoginForm />

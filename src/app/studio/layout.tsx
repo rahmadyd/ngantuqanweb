@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata, Viewport } from "next";
 import { Button } from "@/components/ui";
 import { getAdminSession } from "@/lib/auth/session";
@@ -24,6 +25,11 @@ export default async function StudioLayout({ children }: { children: React.React
         {admin ? (
           <div className={styles.actions}>
             <span className="sr-only">Masuk sebagai {admin.email}</span>
+            <Link href="/" passHref>
+              <Button variant="secondary" size="sm">
+                Kembali ke situs
+              </Button>
+            </Link>
             <form action={signOut}>
               <Button type="submit" variant="secondary" size="sm">
                 Keluar

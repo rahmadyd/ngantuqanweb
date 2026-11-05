@@ -10,30 +10,53 @@ function safeNext(path: string | null) {
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const code = url.searchParams.get("code");
-  const next = safeNext(url.searchParams.get("next"));
 
-  if (!isSupabaseConfigured()) {
-    return NextResponse.redirect(new URL("/studio/login?reason=unconfigured", url.origin));
-  }
+  try {
+    const code = url.searchParams.get("code");
+    const next = safeNext(url.searchParams.get("next"));
 
-  const supabase = await createSupabaseServer();
+    if (!isSupabaseConfigured()) {
+      return NextResponse.redirect(new URL("/studio/login?reason=unconfigured", url.origin));
+    }
 
-  if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) {
+    let supabase;
+    try {
+      supabase = await createSupabaseServer();
+    } catch {
+      return NextResponse.redirect(new URL("/studio/login?reason=server_error", url.origin));
+    }
+
+    if (code) {
+      try {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) {
+          return NextResponse.redirect(new URL("/studio/login?reason=forbidden", url.origin));
+        }
+      } catch {
+        return NextResponse.redirect(new URL("/studio/login?reason=exchange_failed", url.origin));
+      }
+    }
+
+    let email: string | undefined;
+    try {
+      const { data } = await supabase.auth.getClaims();
+      email =
+        typeof data?.claims?.email === "string" ? data.claims.email.toLowerCase() : undefined;
+    } catch {
+      email = undefined;
+    }
+
+    if (!isAllowlistedEmail(email)) {
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        // signOut may fail if cookies cannot be cleared; ignore.
+      }
       return NextResponse.redirect(new URL("/studio/login?reason=forbidden", url.origin));
     }
+
+    return NextResponse.redirect(new URL(next, url.origin));
+  } catch {
+    return NextResponse.redirect(new URL("/studio/login?reason=unexpected_error", url.origin));
   }
-
-  const { data } = await supabase.auth.getClaims();
-  const email =
-    typeof data?.claims?.email === "string" ? data.claims.email.toLowerCase() : undefined;
-
-  if (!isAllowlistedEmail(email)) {
-    await supabase.auth.signOut();
-    return NextResponse.redirect(new URL("/studio/login?reason=forbidden", url.origin));
-  }
-
-  return NextResponse.redirect(new URL(next, url.origin));
 }

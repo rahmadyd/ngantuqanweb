@@ -18,7 +18,7 @@ export async function PublicChrome({ children }: { children: React.ReactNode }) 
       <a className="sr-only" href="#konten">
         Lompat ke konten
       </a>
-      <Header shopEnabled={shopEnabled} pathname={pathname} />
+      <Header shopEnabled={shopEnabled} pathname={pathname} admin={admin} />
       <div id="konten">{children}</div>
       <Footer shopEnabled={shopEnabled} />
       {admin ? <AdminBar /> : null}
