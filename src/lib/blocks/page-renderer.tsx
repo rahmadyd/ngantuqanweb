@@ -1,3 +1,5 @@
+"use client";
+
 import { PUBLIC_BLOCKS } from "@/lib/blocks/public-blocks";
 
 interface PageRendererProps {

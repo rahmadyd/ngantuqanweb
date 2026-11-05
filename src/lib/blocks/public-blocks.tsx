@@ -10,6 +10,8 @@ type BlockStyle = {
   animation?: "none" | "float";
 };
 
+export type { BlockStyle };
+
 const BG_COLORS: Record<string, string> = {
   brume: "var(--brume)",
   menthe: "var(--menthe)",
@@ -65,7 +67,7 @@ function BlockWrapper({
               opacity: 0.5,
             }}
           >
-            {STICKER_LABEL[style.sticker]}
+            {STICKER_LABEL[style.sticker ?? "circle"]}
           </span>
         </div>
       )}

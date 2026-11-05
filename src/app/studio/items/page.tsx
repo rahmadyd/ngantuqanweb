@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { Section } from "@/components/ui";
 import { reorderItems } from "./actions";
 
+export const dynamic = "force-dynamic";
+
 interface ItemData {
   id: string;
   slug: string;

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { createSupabaseBrowser } from "@/lib/supabase/browser";
 import type { Json } from "@/lib/supabase/database";
 
+export const dynamic = "force-dynamic";
+
 interface PageData {
   id: string;
   slug: string;

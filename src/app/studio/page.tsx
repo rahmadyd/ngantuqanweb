@@ -1,12 +1,15 @@
 import { Badge, Button, Card } from "@/components/ui";
 import { getSettings } from "@/lib/settings";
+import { signOut } from "./actions";
 import styles from "./studio.module.css";
+
+export const dynamic = "force-dynamic";
 
 const shortcuts = [
   { href: "/studio/pages", title: "Halaman", body: "Daftar halaman dan editor drag-drop." },
   { href: "/studio/items", title: "Karya", body: "Project dan produk." },
   { href: "/studio/media", title: "Media", body: "Pustaka gambar." },
-  { href: "/studio/messages", title: "Pesan", body: "Masukan dari form kontak." },
+  { href: "/studio/messages", label: "Pesan", body: "Masukan dari form kontak." },
   { href: "/studio/settings", title: "Pengaturan", body: "Toggle shop, WA, judul situs." },
 ];
 
@@ -38,9 +41,18 @@ export default async function StudioDashboardPage() {
           </Card>
         ))}
       </div>
-      <Button href="/" variant="secondary">
-        Lihat situs publik
-      </Button>
+      <div style={{ marginBlockStart: "var(--space-lg)", paddingBlock: "var(--space-xl)" }}>
+        <div style={{ display: "flex", gap: "var(--space-md)" }}>
+          <Button href="/" variant="secondary">
+            Kembali ke situs publik
+          </Button>
+          <form action={signOut} style={{ display: "inline" }}>
+            <Button type="submit" variant="secondary">
+              Keluar
+            </Button>
+          </form>
+        </div>
+      </div>
     </>
   );
 }

@@ -1,8 +1,16 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import { Section } from "@/components/ui";
-import { ImageUploader } from "@/components/ImageUploader";
+
+const MediaUploader = dynamic(
+  () => import("@/components/MediaUploaderWrapper").then((mod) => mod.MediaUploaderWrapper),
+  {
+    ssr: false,
+    loading: () => <div style={{ padding: "var(--space-md)", color: "var(--ink)" }}>Memuat uploader...</div>,
+  }
+);
 
 interface MediaItem {
   name: string;
@@ -119,7 +127,7 @@ export default function StudioMediaPage() {
       )}
 
       <div style={{ marginBottom: "var(--space-xl)" }}>
-        <ImageUploader onUpload={handleUpload} />
+        <MediaUploader onUpload={handleUpload} />
         {uploading && (
           <p style={{ color: "var(--ink)", opacity: 0.7, marginTop: "var(--space-sm)" }}>
             Mengupload...

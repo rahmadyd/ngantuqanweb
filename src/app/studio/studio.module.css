@@ -1,92 +1,48 @@
 .shell {
-  min-height: 100dvh;
-  background-color: var(--brume);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
 }
 
 .top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--space-md);
-  padding: var(--space-md) clamp(16px, 4vw, 32px);
+  padding: var(--space-sm) var(--space-xl);
   border-bottom: var(--border);
-  background-color: var(--limonade);
+  background: var(--paper);
 }
 
 .brand {
-  font-family: var(--font-display);
-  font-size: 1.4rem;
-}
-
-.main {
-  padding: var(--space-xl) clamp(16px, 4vw, 32px);
-  display: grid;
-  gap: var(--space-lg);
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--space-md);
-}
-
-.cardLink {
-  display: grid;
-  gap: var(--space-xs);
-}
-
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  font-weight: 700;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  border-radius: 999px;
-  border: 2px solid var(--ink);
-}
-
-.on {
-  background-color: var(--verveine);
-}
-
-.off {
-  background-color: var(--pop);
-}
-
-.form {
-  display: grid;
-  gap: var(--space-md);
-  max-width: 420px;
-}
-
-.label {
-  display: grid;
-  gap: var(--space-xs);
-  font-weight: 700;
-}
-
-.input {
-  width: 100%;
-  padding: 12px 16px;
-  border: var(--border);
-  border-radius: var(--radius-md);
-  background-color: var(--paper);
-  box-shadow: var(--shadow-hard-sm);
-}
-
-.note {
-  padding: var(--space-md);
-  border: var(--border);
-  border-radius: var(--radius-md);
-  background-color: var(--paper);
+  font-weight: 800;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
 }
 
 .actions {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-sm);
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.body {
+  display: flex;
+  flex: 1;
+}
+
+.main {
+  flex: 1;
+  padding: var(--space-xl);
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .top {
+    padding: var(--space-sm);
+  }
+  .body {
+    flex-direction: column;
+  }
 }

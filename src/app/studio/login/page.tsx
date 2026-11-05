@@ -2,6 +2,8 @@ import { Section } from "@/components/ui";
 import { LoginForm } from "./LoginForm";
 import styles from "../studio.module.css";
 
+export const dynamic = "force-dynamic";
+
 type LoginPageProps = {
   searchParams: Promise<{ reason?: string }>;
 };

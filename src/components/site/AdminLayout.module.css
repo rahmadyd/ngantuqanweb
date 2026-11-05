@@ -1,0 +1,66 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-sm) var(--space-xl);
+  border-bottom: var(--border);
+  background: var(--paper);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.brandText {
+  font-weight: 800;
+  font-size: 1.125rem;
+  letter-spacing: -0.02em;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.userEmail {
+  font-size: 0.875rem;
+  color: var(--ink);
+  opacity: 0.8;
+  padding-right: var(--space-md);
+  border-right: 1px solid var(--ink);
+}
+
+.signoutForm {
+  margin: 0;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+}
+
+.main {
+  flex: 1;
+  padding: var(--space-xl);
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: var(--space-sm);
+  }
+  .userEmail {
+    display: none;
+  }
+}

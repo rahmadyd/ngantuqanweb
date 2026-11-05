@@ -1,9 +1,11 @@
-import Link from "next/link";
 import type { Metadata, Viewport } from "next";
-import { Button } from "@/components/ui";
 import { getAdminSession } from "@/lib/auth/session";
-import { signOut } from "./actions";
+import { isShopEnabled } from "@/lib/settings";
+import { PublicNavbar } from "@/components/site/PublicNavbar";
+import { AdminSidebarWrapper } from "@/components/site/AdminSidebarWrapper";
 import styles from "./studio.module.css";
+
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Studio",
@@ -17,28 +19,18 @@ export const viewport: Viewport = {
 
 export default async function StudioLayout({ children }: { children: React.ReactNode }) {
   const admin = await getAdminSession();
+  const shopEnabled = await isShopEnabled();
 
   return (
     <div className={styles.shell}>
+      <PublicNavbar shopEnabled={shopEnabled} />
       <header className={styles.top}>
         <span className={styles.brand}>Ngantuqan Studio</span>
-        {admin ? (
-          <div className={styles.actions}>
-            <span className="sr-only">Masuk sebagai {admin.email}</span>
-            <Link href="/" passHref>
-              <Button variant="secondary" size="sm">
-                Kembali ke situs
-              </Button>
-            </Link>
-            <form action={signOut}>
-              <Button type="submit" variant="secondary" size="sm">
-                Keluar
-              </Button>
-            </form>
-          </div>
-        ) : null}
       </header>
-      <div className={styles.main}>{children}</div>
+      <div className={styles.body}>
+        <AdminSidebarWrapper />
+        <main className={styles.main}>{children}</main>
+      </div>
     </div>
   );
 }

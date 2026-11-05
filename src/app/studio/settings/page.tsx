@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import styles from "../studio.module.css";
 
+export const dynamic = "force-dynamic";
+
 export default function StudioSettingsPage() {
   const [shopEnabled, setShopEnabled] = useState(false);
   const [settings, setSettings] = useState({

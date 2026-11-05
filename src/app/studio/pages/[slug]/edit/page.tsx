@@ -2,11 +2,11 @@
 
 import { createSupabaseServer } from "@/lib/supabase/server";
 import { assertAdmin } from "@/lib/auth/session";
-import { PageEditor } from "./PageEditor";
+import PageEditor from "./PageEditor";
 import type { PageContent } from "@/types/page-content";
 import { notFound } from "next/navigation";
 
-export async function Page({ params }: { params: Promise<{ slug: string }> }) {
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
 
   await assertAdmin();
